@@ -28,7 +28,7 @@ const Login: FC = () => {
             <div className="w-full flex flex-col items-center max-w-md space-y-8">
                 <div className="flex flex-col items-center gap-8">
                     <Image
-                        src={require('../../assets/logo.png')}
+                        src={require('../../../assets/logo.png')}
                         alt="logo"
                         width={100}
                     />
