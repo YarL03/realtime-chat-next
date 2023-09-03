@@ -4,13 +4,15 @@ import { notFound } from "next/navigation";
 
 import Link from "next/link";
 import Image from "next/image";
-import FriendRequestsSidebarOptions from "@/components/FriendRequestsSidebarOption/FriendRequestsSidebarOptions";
+import FriendRequestsSidebarOptions from "@/components/FriendRequests/FriendRequestsSidebarOption";
 import SignOutButton from "@/components/SignOutButton/SignOutButton";
+import { Icon, Icons } from "@/components/ui/Icons";
+import SidebarChatList from "@/components/Chat/SidebarChatList";
 
 import { authOptions } from "@/lib/auth";
 
-import { Icon, Icons } from "@/components/ui/Icons";
 import { fetchRedis } from "@/helpers/redis";
+import { getFriendsByUserId } from "@/helpers/get-friends-by-user-id";
 
 interface ISidebarOption {
     id: number
@@ -34,7 +36,12 @@ const Layout = async ({children}: {children: ReactNode}) => {
     if (!session)
         notFound()
 
-    const unseenRequestsCount = (await fetchRedis('smembers', `user:${session.user.id}:incoming_friend_requests`) as User[]).length
+    const [friends, unseenRequests] = await Promise.all([
+        getFriendsByUserId(session.user.id),
+        fetchRedis<string[]>('smembers', `user:${session.user.id}:incoming_friend_requests`)
+    ])
+
+    const unseenRequestsCount = unseenRequests.length
 
     return (
         <div
@@ -49,13 +56,17 @@ const Layout = async ({children}: {children: ReactNode}) => {
                         className="h-8 w-auto"
                     />
                 </Link>
+                {friends && friends.length > 0 && 
                 <div className="text-xs font-semibold loading-6 text-gray-400">
                     Your chats
                 </div>
+                }
                 <nav className="flex flex-1 flex-col">
                     <ul className="flex flex-1 flex-col gap-y-7">
                        <li>
-                            /1/1 chats that user has
+                        {friends && friends.length > 0 &&
+                           <SidebarChatList friends={friends} sessionId={session.user.id}/>
+                        }
                         </li>
                         <li>
                             <div className="text-xs font-semibold leading-6 text-gray-400">
@@ -79,15 +90,15 @@ const Layout = async ({children}: {children: ReactNode}) => {
                                         </li>
                                     )
                                 })}
+                                <li>
+                                    <FriendRequestsSidebarOptions
+                                        sessionId={session.user.id}
+                                        initialUnseenRequestsCount={unseenRequestsCount}
+                                    />
+                                </li>
                             </ul>
                         </li>
 
-                        <li>
-                            <FriendRequestsSidebarOptions
-                                sessionId={session.user.id}
-                                initialUnseenRequestsCount={unseenRequestsCount}
-                            />
-                        </li>
                         
                         <li className="-mx-6 mt-auto flex items-center">
                             <div className="flex flex-1 flex-shrink-0 items-center gap-x-1.5 px-3 py-3 text-sm font-semibold leading-6 text-gray-dash-900">

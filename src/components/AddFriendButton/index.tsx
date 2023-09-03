@@ -1,12 +1,13 @@
 'use client'
 
 import { FC, useState } from "react";
+import { z } from "zod";
 import axios, { AxiosError } from 'axios'
 import { SubmitHandler, useForm } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
-import { z } from "zod";
 
 import Button from "../ui/Button";
+
 import { addFriendValidation } from "@/lib/validations/add-friend";
 
 type FormData = z.infer<typeof addFriendValidation>
@@ -16,8 +17,11 @@ const AddFriendButton: FC = () => {
         resolver: zodResolver(addFriendValidation)
     })
     const [showSuccess, setShowSuccess] = useState(false)
+    const [loading, setLoading] = useState(false)
 
     const addFriend = async (email: string) => {
+        setLoading(true)
+
         try {
             const validatedEmail = addFriendValidation.parse({email})
 
@@ -39,6 +43,9 @@ const AddFriendButton: FC = () => {
             }
 
             setError('email', {message: 'Something went wrong'})
+        }
+        finally {
+            setLoading(false)
         }
     }
 
@@ -64,7 +71,11 @@ const AddFriendButton: FC = () => {
                     className="block w-full rounded-md border-0 py-1.5 text-gray-900 shadow-md ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-indigo-600 sm:text-sm sm:leading-6"
                     placeholder="you@example.ru"
                 />
-                <Button>Add</Button>
+                <Button
+                    isLoading={loading}
+                >
+                    {!loading && 'Add'}
+                </Button>
             </div>
             {errors.email && 
                 <p className="mt-1 text-sm text-red-600">

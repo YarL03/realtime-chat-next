@@ -14,7 +14,7 @@ export async function POST(req: Request) {
         if (!session) {
             return new Response('Unauthorized', {status: 401})
         }
-
+        
         const body = await req.json()
 
         const {email: emailToAdd} = addFriendValidation.parse(body.email)
@@ -29,8 +29,6 @@ export async function POST(req: Request) {
 
         const data = await RESTResponse.json() as {result: string | null}
 
-        console.log('data ', data)
-
         const idToAdd = data.result
 
         if (!idToAdd) {
@@ -42,14 +40,14 @@ export async function POST(req: Request) {
         }
 
         //check if user is already added
-        const isAlreadyAdded = await fetchRedis('sismember', `user:${idToAdd}:incoming_friend_requests`, session.user.id) as 0 | 1 
+        const isAlreadyAdded = await fetchRedis<0 | 1>('sismember', `user:${idToAdd}:incoming_friend_requests`, session.user.id) 
 
         if (isAlreadyAdded) {
             return new Response('Already added this user.', {status: 400})
         }
 
         //check if user is already your friend
-        const isAlreadyFriends = await fetchRedis('sismember', `user:${session.user.id}:friends`, idToAdd) as 0 | 1 
+        const isAlreadyFriends = await fetchRedis<0 | 1>('sismember', `user:${session.user.id}:friends`, idToAdd)
 
         if (isAlreadyFriends) {
             return new Response('You are already friends.', {status: 400})

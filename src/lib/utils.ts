@@ -5,3 +5,17 @@ import { twMerge } from "tailwind-merge";
 export function cn(...input: ClassValue[]) {
     return twMerge(clsx(input))
 }
+
+export function chatHrefConstructor(id1: string, id2: string) {
+    const sortedIds = [id1, id2].sort()
+
+    return `${sortedIds[0]}--${sortedIds[1]}`
+}
+
+export const JSONParseAsync = async <T>(prom: Promise<string | string[]>) => {
+    const result = await prom
+
+    return Array.isArray(result)
+        ? result.map(item => JSON.parse(item)) as T
+        : JSON.parse(result) as T
+}

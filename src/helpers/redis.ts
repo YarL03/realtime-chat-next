@@ -3,7 +3,7 @@ const authToken = process.env.UPSTASH_REDIS_REST_TOKEN
 
 type Command = 'zrange' | 'sismember' | 'get' | 'smembers'
 
-export async function fetchRedis(command: Command, ...args: (string | number)[]) {
+export async function fetchRedis<T = any>(command: Command, ...args: (string | number)[]) {
     const commandUrl = `${upstashRedisUrl}/${command}/${args.join('/')}`
 
     const response = await fetch(commandUrl,
@@ -20,5 +20,5 @@ export async function fetchRedis(command: Command, ...args: (string | number)[])
 
     const data = await response.json()
 
-    return data.result
+    return data.result as T
 }

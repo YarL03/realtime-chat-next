@@ -2,9 +2,9 @@
 
 import { FC, useState } from "react";
 import { signIn } from "next-auth/react";
+import { toast } from "react-hot-toast";
 
 import Button from "@/components/ui/Button";
-import { toast } from "react-hot-toast";
 import Image from "next/image";
 
 const Login: FC = () => {

@@ -1,6 +1,7 @@
-import { authOptions } from "@/lib/auth";
-import { getServerSession } from "next-auth";
 import { FC } from "react";
+import { getServerSession } from "next-auth";
+
+import { authOptions } from "@/lib/auth";
 
 const Dashboard: FC = async () => {
     const session = await getServerSession(authOptions)
